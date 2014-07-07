@@ -30,7 +30,7 @@ or, you can do it step-by-step...
 
 * Clone this repository
 ~~~~
-    git clone https://dtannen@bitbucket.org/dtannen/monitor.git
+    git clone https://github.com/dtannen/monitor.git
 ~~~~
 
 * Build, install readline
