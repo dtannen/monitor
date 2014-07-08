@@ -183,9 +183,10 @@ int main(int nargs, char *args[])
         unlink(fName(SHELL_NAME));
 
 	line = rl_gets();
-	strcpy(line_s, line);
         if (line == NULL) {		// trap ctl-d
           exit(1);
+        } else {
+	strcpy(line_s, line);
         }
 
 	// break the line up into words
