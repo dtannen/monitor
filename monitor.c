@@ -17,7 +17,7 @@
 
 #define MAX_LINE 4096
 #define MAX_WORDS MAX_LINE / 2  // because (one letter + one space) is two bytes
-				// so only can have half the number of characters
+                                // so only can have half the number of characters
 char *rl_gets();
 
 // local global vars for parent/child
@@ -56,33 +56,33 @@ int main(int nargs, char *args[])
 
   // get server login user and password
   while ((c = getopt(nargs, args, "dhu:l:")) != -1)
-  switch (c) {
+    switch (c) {
 
-  case 'h':             // help
-    printf("Usage: %s {-d} {-h} {-u <username>}\n\n",args[0]);
-    printf("-d : don't delete /tmp files\n");
-    printf("-h : help\n");
-    printf("-u : commands.com username\n");
-    exit(0);
+    case 'h':             // help
+      printf("Usage: %s {-d} {-h} {-u <username>}\n\n",args[0]);
+      printf("-d : don't delete /tmp files\n");
+      printf("-h : help\n");
+      printf("-u : commands.com username\n");
+      exit(0);
 
-  case 'u':             // username
-    strcpy(username,optarg);
-    gotusername = 1;
-    strcpy(password,getpass("Password: "));
-    break;
+    case 'u':             // username
+      strcpy(username,optarg);
+      gotusername = 1;
+      strcpy(password,getpass("Password: "));
+      break;
 
-  case 'd':             // debug, don't delete /tmp files
-    gotdebug = 1;
-    break;
+    case 'd':             // debug, don't delete /tmp files
+      gotdebug = 1;
+      break;
 
-  default:
-    printf("Usage: %s {-d} {-h} {-u <username>}\n\n",args[0]);
-    printf("-d : don't delete /tmp files\n");
-    printf("-h : help\n");
-    printf("-u : commands.com username\n");
-    exit(0);
-    break;
-  }
+    default:
+      printf("Usage: %s {-d} {-h} {-u <username>}\n\n",args[0]);
+      printf("-d : don't delete /tmp files\n");
+      printf("-h : help\n");
+      printf("-u : commands.com username\n");
+      exit(0);
+      break;
+    }
 
   // if we have both the username and password, login and
   // get the authkey
@@ -101,9 +101,9 @@ int main(int nargs, char *args[])
   sprintf (comname,"/tmp/.%s.commands.com",getenv("USER"));
   if (gotusername) {
     sscanf (authkey,"{\"%[^\"]\":\"%[^\"]",authkeyword,authKeyVal);
-      if (!strcmp(authkeyword,"error")) {
-        printf("Invalid Login.. Exiting.\n");
-        exit(1);
+    if (!strcmp(authkeyword,"error")) {
+      printf("Invalid Login.. Exiting.\n");
+      exit(1);
       // do not save error as authkey
     } else {
       auth_fp = fopen(comname,"w");
@@ -152,9 +152,9 @@ int main(int nargs, char *args[])
     } else {
       printf("\nSuccessfully logged in...");
       if (gotusername) {
-      	printf("\nAuthKey saved to %s.  Delete file to return to Anonymous posting.\n",comname);
+        printf("\nAuthKey saved to %s.  Delete file to return to Anonymous posting.\n",comname);
       } else {
-      	printf("\nAuthKey retrieved from %s.  Delete file to return to Anonymous posting.\n",comname);
+        printf("\nAuthKey retrieved from %s.  Delete file to return to Anonymous posting.\n",comname);
       }
     }
   } else {
@@ -178,258 +178,258 @@ int main(int nargs, char *args[])
 
   // record all input from the user
   while(1)
-  {
-    if (!gotdebug)
+    {
+      if (!gotdebug)
         unlink(fName(SHELL_NAME));
 
-	line = rl_gets();
-	strcpy(line_s, line);
-        if (line == NULL) {		// trap ctl-d
-          exit(1);
-        }
+      line = rl_gets();
+      strcpy(line_s, line);
+      if (line == NULL) {		// trap ctl-d
+        exit(1);
+      }
 
-	// break the line up into words
-	tokenize(line, words, &nwords);
+      // break the line up into words
+      tokenize(line, words, &nwords);
 
-	// just a blank line?
-       if (words[0] == NULL) {
-         continue;
-       }
+      // just a blank line?
+      if (words[0] == NULL) {
+        continue;
+      }
 
-	// are we done ?
-	if (!strcasecmp(words[0], "exit")) {
-          exit(1);
-        }
+      // are we done ?
+      if (!strcasecmp(words[0], "exit")) {
+        exit(1);
+      }
 
-        fputs("monitor$ ",post_fp);
+      fputs("monitor$ ",post_fp);
+      fflush(post_fp);
+      fputs(line_s,post_fp);
+      fflush(post_fp);
+      fputs("\n",post_fp);
+      fflush(post_fp);
+
+
+
+      // toss out any commands that cannot be handled such
+      // as those that use libcurses.so
+
+      if (!strcasecmp(words[0], "top")) {
+        printf("Unable to capture output from %s\n",words[0]);
+        sprintf(string,"Unable to capture output from %s\n",words[0]);
+        fputs(string,post_fp);
         fflush(post_fp);
-        fputs(line_s,post_fp); 
-        fflush(post_fp);
-        fputs("\n",post_fp);
-        fflush(post_fp);
+        continue;
+      }
 
 
-
-        // toss out any commands that cannot be handled such
-        // as those that use libcurses.so
-
-        if (!strcasecmp(words[0], "top")) {
-          printf("Unable to capture output from %s\n",words[0]);
-          sprintf(string,"Unable to capture output from %s\n",words[0]);
-          fputs(string,post_fp);
-          fflush(post_fp);
-          continue;
-        }
-          
-
-	// builtin command
-	if (!strcasecmp(words[0], "cd")) {
-          if (nwords == 1)                     dir = getenv("HOME");
-          if (nwords == 2 && *words[1] == '~') dir = getenv("HOME");
-          if (nwords == 2 && *words[1] != '~') dir = words[1];
-          if (chdir(dir) == -1) {
-            perror("chdir");
-            fputs(strerror(errno),post_fp);
-            fflush(post_fp);
-            fputs("\n",post_fp);
-            fflush(post_fp);
-            continue;
-          }
-          continue;
-	}
-
-	// builtin command
-	if (!strcasecmp(words[0], "pwd")) {
-          if(NULL == (cwd = getcwd(pwd, PATH_MAX))) {
-            strcpy(pwd,"Unable to get current working directory\n");
-          }
-          printf("%s\n",pwd);
-          fputs(pwd,post_fp);
+      // builtin command
+      if (!strcasecmp(words[0], "cd")) {
+        if (nwords == 1)                     dir = getenv("HOME");
+        if (nwords == 2 && *words[1] == '~') dir = getenv("HOME");
+        if (nwords == 2 && *words[1] != '~') dir = words[1];
+        if (chdir(dir) == -1) {
+          perror("chdir");
+          fputs(strerror(errno),post_fp);
           fflush(post_fp);
           fputs("\n",post_fp);
           fflush(post_fp);
           continue;
-	}
+        }
+        continue;
+      }
 
-	// builtin command
-	if (!strcasecmp(words[0], "export")) {
-          if (nwords > 1) {
-            putenv(words[1]);
-            continue;
-          }
-	}
+      // builtin command
+      if (!strcasecmp(words[0], "pwd")) {
+        if(NULL == (cwd = getcwd(pwd, PATH_MAX))) {
+          strcpy(pwd,"Unable to get current working directory\n");
+        }
+        printf("%s\n",pwd);
+        fputs(pwd,post_fp);
+        fflush(post_fp);
+        fputs("\n",post_fp);
+        fflush(post_fp);
+        continue;
+      }
 
-	// look for "ls" by itself and add -C to make it tabbed format
-        // because when piped through tee, it thinks it is not connected
-        // to a terminal.
-	if (!strcasecmp(words[0], "ls")) {
-          if (nwords == 1) {
-            words[1] = "-C";
-            nwords = 2;
-          }
-	}
+      // builtin command
+      if (!strcasecmp(words[0], "export")) {
+        if (nwords > 1) {
+          putenv(words[1]);
+          continue;
+        }
+      }
 
-	// look for "man" and add | col -b
-	if (!strcasecmp(words[0], "man")) {
-          if (nwords == 2) {
-            words[2] = "|";
-            words[3] = "col";
-            words[4] = "-b";
-            nwords = 5;
-          }
-          // for when there is a "man 3 foo"
-          if (nwords == 3) {
-            words[3] = "|";
-            words[4] = "col";
-            words[5] = "-b";
-            nwords = 6;
-          }
-	}
+      // look for "ls" by itself and add -C to make it tabbed format
+      // because when piped through tee, it thinks it is not connected
+      // to a terminal.
+      if (!strcasecmp(words[0], "ls")) {
+        if (nwords == 1) {
+          words[1] = "-C";
+          nwords = 2;
+        }
+      }
 
-	// process special "vi" command
-	if (!strcasecmp(words[0], "vi")) {
-          if (nwords == 1) {
-            printf("Please specify the new file you wish to create.\n");
-            printf("It is required to correctly log the new file.\n");
-            continue;
+      // look for "man" and add | col -b
+      if (!strcasecmp(words[0], "man")) {
+        if (nwords == 2) {
+          words[2] = "|";
+          words[3] = "col";
+          words[4] = "-b";
+          nwords = 5;
+        }
+        // for when there is a "man 3 foo"
+        if (nwords == 3) {
+          words[3] = "|";
+          words[4] = "col";
+          words[5] = "-b";
+          nwords = 6;
+        }
+      }
+
+      // process special "vi" command
+      if (!strcasecmp(words[0], "vi")) {
+        if (nwords == 1) {
+          printf("Please specify the new file you wish to create.\n");
+          printf("It is required to correctly log the new file.\n");
+          continue;
+        }
+        gotvi = 1;
+        if (stat(words[1],&stbuf) != 0) {
+          // new file
+          gotnew=1;
+          strcpy(viFile,words[1]);
+        } else {
+          // make copy of existing file
+          strcpy(viFile,words[1]);
+          strcpy(viTemp,fName(TEMP_NAME));
+          my_cp(viFile,viTemp);
+          gotnew=0;
+        }
+      } else {
+        gotvi = 0;
+      }
+
+      // close the post.txt before forking
+      fclose(post_fp);
+
+      // OK, lets process the external command using fork/execvp
+      if ((pid = fork ()) < 0) {
+        perror ("fork");
+        exit(0);
+      }
+
+      // this will split output between the terminal and post.txt
+      //  <command> 2>&1 | tee -ai <file>
+      if (pid == 0) {		// if child then exec the command
+        if (!gotvi) {
+          // create the bash script
+          tmp_fp = fopen(fName(SHELL_NAME),"w");
+          if (tmp_fp == NULL) {
+            printf("unable to create %s file\n",fName(SHELL_NAME));
+            exit(1);
           }
-          gotvi = 1;
-          if (stat(words[1],&stbuf) != 0) {
-            // new file
-            gotnew=1;
-            strcpy(viFile,words[1]);
-          } else {
-            // make copy of existing file
-            strcpy(viFile,words[1]);
-            strcpy(viTemp,fName(TEMP_NAME));
-            my_cp(viFile,viTemp);
-            gotnew=0;
+          // set file permission to 755
+          i = strtol(mode, 0, 8);
+          chmod (fName(SHELL_NAME),i);
+          memset(combined,0,sizeof(combined));
+          for(i=0;i<nwords;i++) {
+            strcat(combined,words[i]);
+            strcat(combined," ");
           }
-	} else {
-          gotvi = 0;
+
+          sprintf(string,"#!/bin/bash -l\n%s 2>&1 | tee -ai %s\n",combined,fName(POST_NAME));
+          fputs(string,tmp_fp);
+          fclose(tmp_fp);
+
+          execlp ("/bin/bash","bash","-c",fName(SHELL_NAME),(char *)0);
+          perror ("execlp");
+          exit(0);
+        } else {
+
+          execlp ("vi","vi",viFile,(char *)0);
+          perror ("execlp");
+          exit(0);
+        }
+      }
+
+      if (pid > 0)            // parent waits for child process to terminate
+        {
+          do {
+            wpid = waitpid(pid, &status, WUNTRACED);
+            if (wpid == -1) {
+              perror("waitpid");
+              return(0);
+            }
+
+
+            if (WIFEXITED(status)) {
+              //printf("child exited, status=%d\n", WEXITSTATUS(status));
+
+
+            } else if (WIFSIGNALED(status)) {
+              printf("process killed (signal %d)\n", WTERMSIG(status));
+
+
+            } else if (WIFSTOPPED(status)) {
+              printf("process stopped (signal %d)\n", WSTOPSIG(status));
+
+
+            } else {    // Non-standard case -- may never happen
+              printf("Unexpected status (0x%x)\n", status);
+            }
+          } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+
+          // existing file
+          if (gotvi && !gotnew) {
+            my_diff(viTemp,viFile,fName(POST_NAME));
+            unlink(viTemp);
+          }
+
+          // new file
+          if (gotvi && gotnew) {
+            my_append(viFile,fName(POST_NAME));
+          }
+
+          // re-open the post.txt file
+          post_fp = fopen(fName(POST_NAME),"a");
+          if (post_fp == NULL) {
+            printf("unable to re-open post file %s\n",fName(POST_NAME));
+            exit(2);
+          }
+
         }
 
-        // close the post.txt before forking
-        fclose(post_fp);
-
-	// OK, lets process the external command using fork/execvp
-	if ((pid = fork ()) < 0) {
-		perror ("fork");
-		exit(0);
-	}
-
-        // this will split output between the terminal and post.txt
-        //  <command> 2>&1 | tee -ai <file>
-	if (pid == 0) {		// if child then exec the command
-           if (!gotvi) {
-                // create the bash script
-                tmp_fp = fopen(fName(SHELL_NAME),"w");
-                if (tmp_fp == NULL) {
-                  printf("unable to create %s file\n",fName(SHELL_NAME));
-                  exit(1);
-                }
-                // set file permission to 755
-                i = strtol(mode, 0, 8);
-                chmod (fName(SHELL_NAME),i);
-                memset(combined,0,sizeof(combined));
-                for(i=0;i<nwords;i++) {
-                  strcat(combined,words[i]);
-                  strcat(combined," ");
-                }
-      
-                sprintf(string,"#!/bin/bash -l\n%s 2>&1 | tee -ai %s\n",combined,fName(POST_NAME));
-                fputs(string,tmp_fp);
-                fclose(tmp_fp);
-
-        	execlp ("/bin/bash","bash","-c",fName(SHELL_NAME),(char *)0);
-		perror ("execlp");
-		exit(0);
-           } else {
-
-        	execlp ("vi","vi",viFile,(char *)0);
-		perror ("execlp");
-		exit(0);
-           }
-	}
-
-	if (pid > 0)            // parent waits for child process to terminate
-	{
-		do {
-			wpid = waitpid(pid, &status, WUNTRACED);
-			if (wpid == -1) {
-				perror("waitpid");
-				return(0);
-			}
 
 
-			if (WIFEXITED(status)) {
-			  //printf("child exited, status=%d\n", WEXITSTATUS(status));
-
-
-			} else if (WIFSIGNALED(status)) {
-			  printf("process killed (signal %d)\n", WTERMSIG(status));
-
-
-			} else if (WIFSTOPPED(status)) {
-			  printf("process stopped (signal %d)\n", WSTOPSIG(status));
-
-
-			} else {    // Non-standard case -- may never happen 
-  			  printf("Unexpected status (0x%x)\n", status);
-			}
-		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-
-                // existing file
-                if (gotvi && !gotnew) {
-                  my_diff(viTemp,viFile,fName(POST_NAME));
-                  unlink(viTemp);
-                }
-
-                // new file
-                if (gotvi && gotnew) {
-                  my_append(viFile,fName(POST_NAME));
-                }
-
-                // re-open the post.txt file
-                post_fp = fopen(fName(POST_NAME),"a");
-                if (post_fp == NULL) {
-                  printf("unable to re-open post file %s\n",fName(POST_NAME));
-                  exit(2);
-                }
-
-	}
-
-
-
-  }
+    }
 
   exit(0);
 }
 
 
 /******************************************************************
-*
-* split up the command line into tokens
-*
-******************************************************************/
+ *
+ * split up the command line into tokens
+ *
+ ******************************************************************/
 
 void tokenize(char *line, char **words, int *nwords)
 {
 
-	*nwords = 1;
+  *nwords = 1;
 
-	for(words[0]=strtok(line," \t\n");
-		(*nwords<MAX_WORDS)&&(words[*nwords]=strtok(NULL," \t\n"));
-		*nwords=*nwords+1);
-	return;
+  for(words[0]=strtok(line," \t\n");
+      (*nwords<MAX_WORDS)&&(words[*nwords]=strtok(NULL," \t\n"));
+      *nwords=*nwords+1);
+  return;
 }
 
 
 /******************************************************************
-*
-* catch ctl-C and kill -15
-*
-******************************************************************/
+ *
+ * catch ctl-C and kill -15
+ *
+ ******************************************************************/
 
 void terminate2()
 {
@@ -441,10 +441,10 @@ void terminate2()
 
 
 /******************************************************************
-*
-* process the input file and post to the server
-*
-******************************************************************/
+ *
+ * process the input file and post to the server
+ *
+ ******************************************************************/
 
 void terminate()
 {
