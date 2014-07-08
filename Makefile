@@ -6,3 +6,6 @@ monitor:
 install: monitor
 	strip monitor
 	cp monitor /usr/local/bin
+
+clean:
+	rm -f *.o monitor
