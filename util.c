@@ -70,13 +70,10 @@ int getAuthKey(char *username, char *password, char *authkey, char *key)
     res = getKeyVal(key);
 
     return(res);
-
   } else {
-
     strcpy(authkey,"");
     strcpy(key,"");
     return (-99);
-
   }
 }
 
@@ -107,7 +104,6 @@ int postJsonFile(char *postfile)
   if (curl) {
     struct return_string s;
     init_string(&s);
-
 
     stat(postfile,&stbuf);
     filelen = stbuf.st_size;
@@ -155,17 +151,13 @@ int postJsonFile(char *postfile)
       return(-2);
     }
 
-
     free(s.ptr);
     close(json_fp);
 
     curl_easy_cleanup(curl);
     curl_slist_free_all(headers);
-
   } else {
-
     return (-99);
-
   }
 
   return(res);
@@ -201,17 +193,14 @@ int getKeyVal(char *key)
     /* Check for errors */
     if(res != CURLE_OK)
       fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
+          curl_easy_strerror(res));
     strcpy(key,s.ptr);
 
     free(s.ptr);
 
     curl_easy_cleanup(curl);
-
   } else {
-
     res = -99;
-
   }
 
   return(res);
@@ -299,6 +288,7 @@ int buildJsonResult(char *authkey, char *key)
   gotcommand = 0;
   numCommand = 0;
   memset(buftmp,0,sizeof(buftmp));
+
   // are we logged in or are we anonymous?
   if (strlen(authkey))
     sprintf(buftmp,"{\"authkey\": \"%s\", \"key\":\"%s\", \"commands\":{\n",authkey,key);
@@ -308,7 +298,6 @@ int buildJsonResult(char *authkey, char *key)
   fputs(buftmp,json_fp);
 
   while(1) {
-
     memset(buf,0,sizeof(buf));
     if (fgets(buf,4096,post_fp) == NULL) break;
 
@@ -316,8 +305,7 @@ int buildJsonResult(char *authkey, char *key)
     n = strlen(buf);
     if (buf[n-1] == '\n') buf[n-1] = '\0';
 
-
-    if (!strcmp(buf,"monitor$ ")) continue;		// just a blank line, skip it
+    if (!strcmp(buf,"monitor$ ")) continue;    // just a blank line, skip it
 
     // get the command
     memset(command,0,sizeof(command));
@@ -383,7 +371,7 @@ int buildJsonResult(char *authkey, char *key)
       if (fgets(buf,4096,post_fp) == NULL) break;
       n = strlen(buf);
       if (buf[n-1] == '\n') buf[n-1] = '\0';
-      if (strstr(buf,"monitor$ ")) {			// another prompt. we are done here
+      if (strstr(buf,"monitor$ ")) {      // another prompt. we are done here
         // rewind the file pointer
         fsetpos(post_fp,&fpos);
         break;
@@ -425,13 +413,10 @@ int buildJsonResult(char *authkey, char *key)
 
       strcat(out,buftmp);
       strcat(out,"\\n");
-
     }
     // append closing quote
     strcat(out,"\"\n");
     fputs(out,json_fp);
-
-
   }
 
   fputs("         }\n",json_fp);
@@ -458,60 +443,59 @@ char *fName(NAMETYPE name)
   static int gotpostname=0,gotpostjson=0,gotauthkey=0,gotkey=0;
   static int gotshell=0,gotshell2=0,gottemp=0;
 
-
   switch (name) {
-  case POST_NAME:
-    if (!gotpostname) {
-      scratchname(postFile,"txt");
-      gotpostname = 1;
-    }
-    return(postFile);
-    break;
-  case POST_JSON:
-    if (!gotpostjson) {
-      scratchname(jsonFile,"json");
-      gotpostjson = 1;
-    }
-    return(jsonFile);
-    break;
-  case AUTHKEY_NAME:
-    if (!gotauthkey) {
-      scratchname(authKeyJsonFile,"json");
-      gotauthkey = 1;
-    }
-    return(authKeyJsonFile);
-    break;
-  case KEY_NAME:
-    if (!gotkey) {
-      scratchname(keyJsonFile,"json");
-      gotkey = 1;
-    }
-    return(keyJsonFile);
-    break;
-  case SHELL_NAME:
-    if (!gotshell) {
-      scratchname(shellFile,"sh");
-      gotshell = 1;
-    }
-    return(shellFile);
-    break;
-  case SHELL_NAME2:
-    if (!gotshell2) {
-      scratchname(shellFile2,"sh2");
-      gotshell2 = 1;
-    }
-    return(shellFile2);
-    break;
-  case TEMP_NAME:
-    if (!gottemp) {
-      scratchname(tempFile,"tmp");
-      gottemp = 1;
-    }
-    return(tempFile);
-    break;
-  default:
-    return(NULL);
-    break;
+    case POST_NAME:
+      if (!gotpostname) {
+        scratchname(postFile,"txt");
+        gotpostname = 1;
+      }
+      return(postFile);
+      break;
+    case POST_JSON:
+      if (!gotpostjson) {
+        scratchname(jsonFile,"json");
+        gotpostjson = 1;
+      }
+      return(jsonFile);
+      break;
+    case AUTHKEY_NAME:
+      if (!gotauthkey) {
+        scratchname(authKeyJsonFile,"json");
+        gotauthkey = 1;
+      }
+      return(authKeyJsonFile);
+      break;
+    case KEY_NAME:
+      if (!gotkey) {
+        scratchname(keyJsonFile,"json");
+        gotkey = 1;
+      }
+      return(keyJsonFile);
+      break;
+    case SHELL_NAME:
+      if (!gotshell) {
+        scratchname(shellFile,"sh");
+        gotshell = 1;
+      }
+      return(shellFile);
+      break;
+    case SHELL_NAME2:
+      if (!gotshell2) {
+        scratchname(shellFile2,"sh2");
+        gotshell2 = 1;
+      }
+      return(shellFile2);
+      break;
+    case TEMP_NAME:
+      if (!gottemp) {
+        scratchname(tempFile,"tmp");
+        gottemp = 1;
+      }
+      return(tempFile);
+      break;
+    default:
+      return(NULL);
+      break;
   }
 
   return(NULL);
@@ -540,19 +524,18 @@ void scratchname (char *name,char *suffix)
    * until we find one that doesn't already exist
    */
 
-  for (version = 0; ; version++)
+  for (version = 0; ; version++) {
+    sprintf (proposed, "%scli%04d%d.%s", shortpath, version, pid, suffix);
+
+    if (stat (proposed, &stbuf) != 0)
+      break;
+
+    if (version == 9999)
     {
-      sprintf (proposed, "%scli%04d%d.%s", shortpath, version, pid, suffix);
-
-      if (stat (proposed, &stbuf) != 0)
-        break;
-
-      if (version == 9999)
-        {
-          strcpy(name,"");
-          return;
-        }
+      strcpy(name,"");
+      return;
     }
+  }
 
   strcpy (name, proposed);
 
@@ -601,33 +584,31 @@ void my_cp(char *source, char *dest)
 
   if (pid == 0) { /* child */
     execlp ("/bin/bash", "bash", "-c",fName(SHELL_NAME2),(char *)0);
-  }
-  else if (pid < 0) {
+  } else if (pid < 0) {
     /* error - couldn't start process - you decide how to handle */
-  }
-  else {
+  } else {
     /* parent - wait for child - this has all error handling, you
      * could just call wait() as long as you are only expecting to
      * have one child process at a time.
      */
     pid_t ws = waitpid( pid, &childExitStatus, WUNTRACED);
     if (ws == -1)
-      {
-        perror("waitpid");
-        return;
-      }
+    {
+      perror("waitpid");
+      return;
+    }
 
     if( WIFEXITED(childExitStatus)) /* exit code in childExitStatus */
-      {
-        status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
-        /* handle non-zero as you wish */
-      }
+    {
+      status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
+      /* handle non-zero as you wish */
+    }
     else if (WIFSIGNALED(childExitStatus)) /* killed */
-      {
-      }
+    {
+    }
     else if (WIFSTOPPED(childExitStatus)) /* stopped */
-      {
-      }
+    {
+    }
   }
 }
 
@@ -664,33 +645,31 @@ void my_diff(char *source, char *dest, char *appendfile)
 
   if (pid == 0) { /* child */
     execlp ("/bin/bash","bash","-c",fName(SHELL_NAME2),(char *)0);
-  }
-  else if (pid < 0) {
+  } else if (pid < 0) {
     /* error - couldn't start process - you decide how to handle */
-  }
-  else {
+  } else {
     /* parent - wait for child - this has all error handling, you
      * could just call wait() as long as you are only expecting to
      * have one child process at a time.
      */
     pid_t ws = waitpid( pid, &childExitStatus, WUNTRACED);
     if (ws == -1)
-      {
-        perror("waitpid");
-        return;
-      }
+    {
+      perror("waitpid");
+      return;
+    }
 
     if( WIFEXITED(childExitStatus)) /* exit code in childExitStatus */
-      {
-        status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
-        /* handle non-zero as you wish */
-      }
+    {
+      status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
+      /* handle non-zero as you wish */
+    }
     else if (WIFSIGNALED(childExitStatus)) /* killed */
-      {
-      }
+    {
+    }
     else if (WIFSTOPPED(childExitStatus)) /* stopped */
-      {
-      }
+    {
+    }
   }
 }
 
@@ -730,30 +709,29 @@ void my_append(char *source, char *appendfile)
   }
   else if (pid < 0) {
     /* error - couldn't start process - you decide how to handle */
-  }
-  else {
+  } else {
     /* parent - wait for child - this has all error handling, you
      * could just call wait() as long as you are only expecting to
      * have one child process at a time.
      */
     pid_t ws = waitpid( pid, &childExitStatus, WUNTRACED);
     if (ws == -1)
-      {
-        perror("waitpid");
-        return;
-      }
+    {
+      perror("waitpid");
+      return;
+    }
 
     if( WIFEXITED(childExitStatus)) /* exit code in childExitStatus */
-      {
-        status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
-        /* handle non-zero as you wish */
-      }
+    {
+      status = WEXITSTATUS(childExitStatus); /* zero is normal exit */
+      /* handle non-zero as you wish */
+    }
     else if (WIFSIGNALED(childExitStatus)) /* killed */
-      {
-      }
+    {
+    }
     else if (WIFSTOPPED(childExitStatus)) /* stopped */
-      {
-      }
+    {
+    }
   }
 }
 
@@ -770,11 +748,10 @@ char *rl_gets ()
 {
   /* If the buffer has already been allocated, return the memory
      to the free pool. */
-  if (line_read)
-    {
-      free (line_read);
-      line_read = (char *)NULL;
-    }
+  if (line_read) {
+    free (line_read);
+    line_read = (char *)NULL;
+  }
 
   /* Get a line from the user. */
   line_read = readline ("monitor$ ");
